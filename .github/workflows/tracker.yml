@@ -1,0 +1,49 @@
+name: Scheduled Flight Price Tracker
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # 每 6 小時自動執行一次
+  workflow_dispatch:      # 支援手動立即執行
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write         # 允許腳本把票價存回倉庫
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests playwright
+        playwright install chromium
+
+    - name: Run Scraper and Notification
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        PRICE_THRESHOLD: ${{ secrets.PRICE_THRESHOLD }}
+      run: python scraper.py
+
+    - name: Commit and Push Updated Prices
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add flight_prices.json
+        git diff --quiet && git diff --staged --quiet || (git commit -m "📊 auto: Update flight prices [skip ci]" && git push)
