@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泰越捷航空 票價追蹤器 (TPE ⇄ BKK)</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-bg"></div>
+    <div class="app-container">
+        <!-- Sidebar / Header -->
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-plane-departure brand-icon"></i>
+                <div class="brand-text">
+                    <h1>VietJet Tracker</h1>
+                    <span class="sub-brand">雲端票價監控系統</span>
+                </div>
+            </div>
+
+            <div class="route-details">
+                <div class="route-badge">TPE ⇄ BKK</div>
+                <div class="route-info">
+                    <div class="info-item">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>去回程：<b>06/18 (週四) - 06/22 (週一)</b></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fa-solid fa-plane"></i>
+                        <span>航空公司：<b>泰越捷航空 (直達)</b></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sync-status">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">雲端監控中</span>
+                </div>
+                <div class="last-updated">
+                    最後更新：<span id="update-time">讀取中...</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <button class="nav-btn active" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-chart-line"></i> 票價儀表板
+                </button>
+                <button class="nav-btn" onclick="switchTab('setup')">
+                    <i class="fa-solid fa-circle-info"></i> 雲端部署指南
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- TAB: Dashboard -->
+            <div id="tab-dashboard" class="tab-pane active">
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <!-- Card 1: Current Price -->
+                    <div class="metric-card glass glow-primary">
+                        <div class="card-header">
+                            <span class="card-title">當前最低票價</span>
+                            <i class="fa-solid fa-tags card-icon"></i>
+                        </div>
+                        <div class="card-value" id="current-price">TWD --</div>
+                        <div class="card-footer">
+                            <span id="price-change-badge" class="badge">--</span>
+                            <span class="footer-text">相較於前次</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Historical Low -->
+                    <div class="metric-card glass">
+                        <div class="card-header">
+                            <span class="card-title">歷史最低票價</span>
+                            <i class="fa-solid fa-circle-arrow-down card-icon text-success"></i>
+                        </div>
+                        <div class="card-value text-success" id="lowest-price">TWD --</div>
+                        <div class="card-footer">
+                            <i class="fa-solid fa-clock footer-icon"></i>
+                            <span class="footer-text" id="lowest-price-date">紀錄時間: --</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Status Buy/Wait -->
+                    <div class="metric-card glass">
+                        <div class="card-header">
+                            <span class="card-title">建議購買狀態</span>
+                            <i class="fa-solid fa-circle-question card-icon text-warning"></i>
+                        </div>
+                        <div class="card-value" id="advice-status">評估中...</div>
+                        <div class="card-footer">
+                            <i class="fa-solid fa-bell footer-icon"></i>
+                            <span class="footer-text" id="advice-details">根據門檻價格評估</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Card -->
+                <div class="chart-card glass">
+                    <div class="chart-header">
+                        <h2><i class="fa-solid fa-chart-area text-primary"></i> 票價走勢分析</h2>
+                        <div class="chart-legend">
+                            <span class="legend-item"><span class="legend-dot bg-primary"></span>泰越捷來回最低價</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Flight Options Table -->
+                <div class="table-card glass">
+                    <h2><i class="fa-solid fa-list-ul text-primary"></i> 當前可選航班組合 (直達)</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>組合</th>
+                                    <th>去程航班 (TPE ➔ BKK)</th>
+                                    <th>回程航班 (BKK ➔ TPE)</th>
+                                    <th>總價 (來回含稅)</th>
+                                    <th>動作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="flight-options-body">
+                                <tr>
+                                    <td colspan="5" class="text-center">讀取票價資訊中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Cloud Setup -->
+            <div id="tab-setup" class="tab-pane">
+                <div class="setup-container glass">
+                    <h2><i class="fa-solid fa-cloud-arrow-up text-primary"></i> 100% 雲端自動追蹤部署指南</h2>
+                    <p class="setup-intro">
+                        本專案採用 <b>Serverless 無伺服器架構</b>，所有監控與通知皆在 GitHub 雲端運行，<b>不需要在您的電腦下載或運行任何程式</b>。請按照以下簡單的 3 個步驟進行設定，即可在您的手機上建立自動票價監控系統！
+                    </p>
+
+                    <div class="setup-steps">
+                        <!-- Step 1 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h3>建立並上傳程式碼至 GitHub 倉庫</h3>
+                                <p>在您個人的 GitHub 帳號中，建立一個新的儲存庫 (Repository)，並將本目錄下的所有程式碼上傳（建議設為 <b>Private 私人倉庫</b> 確保您的設定隱私）：</p>
+                                <pre><code>git init
+git add .
+git commit -m "Initialize VietJet Tracker"
+git branch -M main
+git remote add origin https://github.com/您的帳號/儲存庫名稱.git
+git push -u origin main</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h3>設定 Telegram 憑證 (GitHub Secrets)</h3>
+                                <p>為了讓雲端爬蟲能夠發送 Telegram 訊息給您，請在 GitHub 儲存庫的 <b>Settings -> Secrets and variables -> Actions</b> 中，新增以下三個 <b>Repository Secrets</b>：</p>
+                                <ul>
+                                    <li><code>TELEGRAM_BOT_TOKEN</code>：您的 Telegram Bot API Token (跟 <b>@BotFather</b> 建立 Bot 即可獲得)</li>
+                                    <li><code>TELEGRAM_CHAT_ID</code>：您的個人 Telegram ID (向 <b>@userinfobot</b> 發送任意訊息即可取得)</li>
+                                    <li><code>PRICE_THRESHOLD</code>：您的目標警報門檻價格，例如 <code>10500</code></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h3>啟用 GitHub Pages 網頁儀表板</h3>
+                                <p>上傳程式碼並設定金鑰後，將本儀表板發布為公開網頁，以便您隨時查看票價圖表：</p>
+                                <ol>
+                                    <li>在 GitHub 儲存庫的 <b>Settings -> Pages</b></li>
+                                    <li>在 <b>Build and deployment -> Source</b> 選擇 <b>Deploy from a branch</b></li>
+                                    <li>在 <b>Branch</b> 選擇 <code>main</code> 並指定 <code>/ (root)</code>，然後點選 <b>Save</b></li>
+                                    <li>數分鐘後，您即可透過 <code>https://您的帳號.github.io/儲存庫名稱/</code> 打開本儀表板！</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">🎉</div>
+                            <div class="step-content">
+                                <h3>完成！自動監控啟用中</h3>
+                                <p>
+                                    GitHub Actions 將會<b>每 6 小時自動在雲端運行一次爬蟲</b>。當票價低於您設定的門檻值時，您的 Telegram 會即時收到推播通知！您也可以在 GitHub 儲存庫的 <b>Actions</b> 分頁點選 <b>Run workflow</b> 來手動立刻測試抓取。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script imports -->
+    <script src="app.js"></script>
+</body>
+</html>
