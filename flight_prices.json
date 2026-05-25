@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-25T09:08:40.553167",
+  "last_updated": "2026-05-25T09:14:09.672595",
   "route": "TPE ⇄ BKK",
   "dates": "2026/06/18 - 2026/06/22",
   "airline": "Thai VietJet (泰越捷航空)",
@@ -56,6 +56,12 @@
       "price": 10560,
       "is_mock": true,
       "note": "Simulated market update"
+    },
+    {
+      "timestamp": "2026-05-25T09:14:09.672586",
+      "price": 10590,
+      "is_mock": true,
+      "note": "Simulated market update"
     }
   ],
   "options": [
@@ -74,7 +80,7 @@
         "duration": "3h 45m",
         "stops": "直達"
       },
-      "price": 10560
+      "price": 10590
     },
     {
       "outbound": {
@@ -91,7 +97,7 @@
         "duration": "3h 50m",
         "stops": "直達"
       },
-      "price": 11616
+      "price": 11649
     }
   ]
 }
