@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-26T04:28:32.048480",
+  "last_updated": "2026-05-26T10:02:51.390472",
   "route": "新航線 (例如 TPE ⇄ NRT)",
   "dates": "新日期",
   "airline": "新航空公司",
@@ -21,6 +21,12 @@
       "price": 10471,
       "is_mock": true,
       "note": "Simulated market update"
+    },
+    {
+      "timestamp": "2026-05-26T10:02:51.390464",
+      "price": 10498,
+      "is_mock": true,
+      "note": "Simulated market update"
     }
   ],
   "options": [
@@ -39,7 +45,7 @@
         "duration": "3h 45m",
         "stops": "直達"
       },
-      "price": 10471
+      "price": 10498
     },
     {
       "outbound": {
@@ -56,7 +62,7 @@
         "duration": "3h 50m",
         "stops": "直達"
       },
-      "price": 11518
+      "price": 11547
     }
   ]
 }
