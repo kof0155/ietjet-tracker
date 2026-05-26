@@ -12,7 +12,7 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 PRICE_THRESHOLD = int(os.environ.get("PRICE_THRESHOLD", 10500))
 
 JSON_PATH = "flight_prices.json"
-GOOGLE_FLIGHTS_URL = "https://www.google.com/travel/flights?q=Flights%20to%20BKK%20from%20TPE%20on%202026-06-18%20through%202026-06-22"
+GOOGLE_FLIGHTS_URL = "https://www.google.com/travel/flights/s/W7ZxHZdfFYDrVScy8"
 
 def send_telegram_alert(price, previous_price, flight_options):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
