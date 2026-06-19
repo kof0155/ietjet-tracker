@@ -1,15 +1,9 @@
 {
-  "last_updated": "2026-06-19T04:20:00.778856",
+  "last_updated": "2026-06-19T10:28:05.198963",
   "route": "TPE ⇄ FUK (直飛 5 天來回)",
   "dates": "新日期",
   "airline": "新航空公司",
   "history": [
-    {
-      "timestamp": "2026-05-26T01:30:22.218977",
-      "price": 10424,
-      "is_mock": true,
-      "note": "Simulated market update"
-    },
     {
       "timestamp": "2026-05-26T03:53:36.386375",
       "price": 10291,
@@ -510,6 +504,11 @@
       "timestamp": "2026-06-19T04:20:00.778847",
       "price": 11236,
       "average_price": 12241
+    },
+    {
+      "timestamp": "2026-06-19T10:28:05.198952",
+      "price": 10445,
+      "average_price": 12947
     }
   ],
   "options": [
@@ -548,13 +547,13 @@
       "price": 11523
     }
   ],
-  "average_price": 12241,
+  "average_price": 12947,
   "grid": [
     {
       "start": "2026-06-25",
       "end": "2026-06-29",
       "display": "06/25 ~ 06/29",
-      "price": 13412,
+      "price": 13723,
       "airline": "預估航空",
       "stops": "直達"
     },
@@ -562,7 +561,7 @@
       "start": "2026-07-02",
       "end": "2026-07-06",
       "display": "07/02 ~ 07/06",
-      "price": 11327,
+      "price": 10445,
       "airline": "預估航空",
       "stops": "直達"
     },
@@ -570,7 +569,7 @@
       "start": "2026-07-09",
       "end": "2026-07-13",
       "display": "07/09 ~ 07/13",
-      "price": 13533,
+      "price": 14449,
       "airline": "預估航空",
       "stops": "直達"
     },
@@ -578,7 +577,7 @@
       "start": "2026-07-16",
       "end": "2026-07-20",
       "display": "07/16 ~ 07/20",
-      "price": 11236,
+      "price": 12129,
       "airline": "預估航空",
       "stops": "直達"
     },
@@ -586,7 +585,7 @@
       "start": "2026-07-23",
       "end": "2026-07-27",
       "display": "07/23 ~ 07/27",
-      "price": 12482,
+      "price": 13859,
       "airline": "預估航空",
       "stops": "直達"
     },
@@ -594,7 +593,7 @@
       "start": "2026-07-30",
       "end": "2026-08-03",
       "display": "07/30 ~ 08/03",
-      "price": 11460,
+      "price": 13080,
       "airline": "預估航空",
       "stops": "直達"
     }
