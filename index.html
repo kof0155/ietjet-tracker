@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>福岡 5 天直飛 彈性票價監控儀表板</title>
+    <title>日本熱門航線 票價比價監控儀表板</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -14,25 +14,27 @@
 <body>
     <div class="glow-bg"></div>
     <div class="app-container">
+        <!-- Header -->
         <header class="app-header">
             <div class="brand">
                 <i class="fa-solid fa-plane-departure brand-icon"></i>
                 <div class="brand-text">
-                    <h1>FUK Flight Tracker</h1>
-                    <span class="sub-brand">福岡 5 天直飛雲端追蹤</span>
+                    <h1>JP Flight Tracker</h1>
+                    <span class="sub-brand">福岡・東京 直飛雲端監控</span>
                 </div>
             </div>
 
+            <!-- Route Info Banner -->
             <div class="route-details">
-                <div class="route-badge">TPE ⇄ FUK</div>
+                <div class="route-badge" id="route-display-badge">TPE ⇄ FUK</div>
                 <div class="route-info">
                     <div class="info-item">
                         <i class="fa-solid fa-calendar-days"></i>
-                        <span>追蹤區間：<b>未來 6 週 (彈性週四出發，週一回來)</b></span>
+                        <span id="route-date-range">追蹤區間：未來 6 週 (5天來回)</span>
                     </div>
                     <div class="info-item">
                         <i class="fa-solid fa-plane"></i>
-                        <span>條件過濾：<b>直飛航班 (不限航空公司)</b></span>
+                        <span>過濾條件：<b>直飛航班 (不限航空公司)</b></span>
                     </div>
                 </div>
             </div>
@@ -48,16 +50,22 @@
             </div>
             
             <div class="nav-menu">
-                <button class="nav-btn active" onclick="switchTab('dashboard')">
-                    <i class="fa-solid fa-chart-line"></i> 票價儀表板
-                </button>
-                <button class="nav-btn" onclick="switchTab('setup')">
-                    <i class="fa-solid fa-circle-info"></i> 雲端部署指南
+                <div class="city-selector">
+                    <button class="nav-btn active" id="btn-fukuoka" onclick="switchCity('fukuoka')">
+                        <i class="fa-solid fa-map-location-dot"></i> 福岡 (6週)
+                    </button>
+                    <button class="nav-btn" id="btn-tokyo" onclick="switchCity('tokyo')">
+                        <i class="fa-solid fa-gopuran"></i> 東京 (3個月)
+                    </button>
+                </div>
+                <button class="nav-btn setup-btn" onclick="switchTab('setup')">
+                    <i class="fa-solid fa-circle-info"></i> 部署指南
                 </button>
             </div>
         </header>
 
         <main class="main-content">
+            <!-- TAB: Dashboard -->
             <div id="tab-dashboard" class="tab-pane active">
                 <div class="metrics-grid">
                     <!-- 最划算票價 -->
@@ -76,13 +84,13 @@
                     <!-- 行情平均票價 -->
                     <div class="metric-card glass">
                         <div class="card-header">
-                            <span class="card-title">6週直飛平均票價</span>
+                            <span class="card-title">區間直飛平均票價</span>
                             <i class="fa-solid fa-calculator card-icon"></i>
                         </div>
                         <div class="card-value" id="lowest-price">TWD --</div>
                         <div class="card-footer">
                             <i class="fa-solid fa-circle-info footer-icon"></i>
-                            <span class="footer-text">以此作為划算評估依據</span>
+                            <span class="footer-text">以區間內平均票價作為劃算評估依據</span>
                         </div>
                     </div>
 
@@ -100,22 +108,19 @@
                     </div>
                 </div>
 
-                <!-- 6週區間柱狀圖 -->
+                <!-- 票價對比柱狀圖 -->
                 <div class="chart-card glass">
                     <div class="chart-header">
-                        <h2><i class="fa-solid fa-chart-bar text-primary"></i> 未來 6 週出發票價對比 (週四~週一)</h2>
-                        <div class="chart-legend">
-                            <span class="legend-item"><span class="legend-dot bg-primary"></span>來回直飛票價</span>
-                        </div>
+                        <h2 id="chart-title"><i class="fa-solid fa-chart-bar text-primary"></i> 未來出發票價對比 (週四~週一)</h2>
                     </div>
                     <div class="chart-container">
                         <canvas id="priceChart"></canvas>
                     </div>
                 </div>
 
-                <!-- 各週列表 -->
+                <!-- 列表清單 -->
                 <div class="table-card glass">
-                    <h2><i class="fa-solid fa-list-ul text-primary"></i> 未來 6 週直飛來回選項清單</h2>
+                    <h2><i class="fa-solid fa-list-ul text-primary"></i> 出發日期票價選項清單</h2>
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -138,9 +143,48 @@
                 </div>
             </div>
 
-            <!-- Tab: Setup (無更動) -->
+            <!-- TAB: Setup (部署指南) -->
             <div id="tab-setup" class="tab-pane">
-                <!-- 指南面板 (與先前完全一致，不贅述) -->
+                <div class="setup-container glass">
+                    <h2><i class="fa-solid fa-cloud-arrow-up text-primary"></i> 100% 雲端自動追蹤部署指南</h2>
+                    <p class="setup-intro">
+                        本專案採用 <b>Serverless 無伺服器架構</b>，所有監控與通知皆在 GitHub 雲端運行，<b>不需要在您的電腦下載或運行任何程式</b>。
+                    </p>
+
+                    <div class="setup-steps">
+                        <!-- Step 1 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h3>更新檔案至 GitHub 倉庫</h3>
+                                <p>將修改後的 <code>scraper.py</code>, <code>index.html</code>, 和 <code>app.js</code> 檔案，直接上傳或複製貼上到您現有的 GitHub 倉庫中並儲存。</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h3>設定 Telegram 憑證 (GitHub Secrets)</h3>
+                                <p>如果還沒有設定，請至 <b>Settings -> Secrets and variables -> Actions</b> 新增：</p>
+                                <ul>
+                                    <li><code>TELEGRAM_BOT_TOKEN</code>：您的 Telegram Bot Token</li>
+                                    <li><code>TELEGRAM_CHAT_ID</code>：您的個人 Telegram ID (一串純數字)</li>
+                                </ul>
+                                <p><i>💡 備註：已經不需設定 <code>PRICE_THRESHOLD</code> 限制，系統會全自動依照「日本各航線的平均行情」算出特價區間！</i></p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="setup-step-card">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h3>手動執行以初始化資料</h3>
+                                <p>上傳完成後，至倉庫的 <b>Actions ➔ Scheduled Flight Price Tracker ➔ 點選 Run workflow</b> 手動執行一次爬蟲，完成後重新整理您的 Pages 網頁即可！</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
