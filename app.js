@@ -37,7 +37,7 @@ function switchCity(city) {
     if (city === 'fukuoka') {
         document.getElementById('btn-fukuoka').classList.add('active');
         document.getElementById('route-display-badge').textContent = 'TPE ⇄ FUK';
-        document.getElementById('route-date-range').innerHTML = '追蹤區間：<b>未來 6 週 (四~一 & 五~二)</b>';
+        document.getElementById('route-date-range').innerHTML = '追蹤區間：<b>未來 12 週 (四~一 & 五~二)</b>';
     } else {
         document.getElementById('btn-tokyo').classList.add('active');
         document.getElementById('route-display-badge').textContent = 'TPE ⇄ TYO';
