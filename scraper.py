@@ -9,20 +9,42 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 JSON_PATH = "flight_prices.json"
 
+# 自動產生每週「週四~週一」與「週五~週二」兩種 5 天組合
 def get_candidate_dates(weeks_count):
     candidates = []
     today = datetime.now()
-    days_ahead = 3 - today.weekday()
-    if days_ahead <= 0: days_ahead += 7
-    first_thursday = today + timedelta(days=days_ahead)
+    
+    # 尋找下一個週四與週五
+    days_to_thu = 3 - today.weekday()
+    if days_to_thu <= 0: days_to_thu += 7
+    first_thu = today + timedelta(days=days_to_thu)
+    
+    days_to_fri = 4 - today.weekday()
+    if days_to_fri <= 0: days_to_fri += 7
+    first_fri = today + timedelta(days=days_to_fri)
+    
     for i in range(weeks_count):
-        dept_date = first_thursday + timedelta(weeks=i)
-        ret_date = dept_date + timedelta(days=4)
+        # 1. 週四~週一 (5天)
+        d_thu = first_thu + timedelta(weeks=i)
+        r_mon = d_thu + timedelta(days=4)
         candidates.append({
-            "start": dept_date.strftime("%Y-%m-%d"),
-            "end": ret_date.strftime("%Y-%m-%d"),
-            "display": f"{dept_date.strftime('%m/%d')} ~ {ret_date.strftime('%m/%d')}"
+            "start": d_thu.strftime("%Y-%m-%d"),
+            "end": r_mon.strftime("%Y-%m-%d"),
+            "display": f"{d_thu.strftime('%m/%d')}(四) ~ {r_mon.strftime('%m/%d')}(一)",
+            "tag": "週四~週一"
         })
+        
+        # 2. 週五~週二 (5天)
+        d_fri = first_fri + timedelta(weeks=i)
+        r_tue = d_fri + timedelta(days=4)
+        candidates.append({
+            "start": d_fri.strftime("%Y-%m-%d"),
+            "end": r_tue.strftime("%Y-%m-%d"),
+            "display": f"{d_fri.strftime('%m/%d')}(五) ~ {r_tue.strftime('%m/%d')}(二)",
+            "tag": "週五~週二"
+        })
+        
+    candidates.sort(key=lambda x: x["start"])
     return candidates
 
 def send_telegram_alert(route_name, dest_code, best_opt, avg_price, savings, pct, grid_data):
@@ -32,7 +54,8 @@ def send_telegram_alert(route_name, dest_code, best_opt, avg_price, savings, pct
         is_best = "🔥 最便宜!" if item["price"] == best_opt["price"] else ""
         price_list_text += f"📅 {item['display']}：TWD {item['price']:,} 元 {is_best}\n"
     if len(grid_data) > 6:
-        price_list_text += "（其餘區間請至網頁儀表板查看...）\n"
+        price_list_text += "（其餘組合請至網頁儀表板查看...）\n"
+
     message = (
         f"✈️ <b>【{route_name} 直飛特惠警報】</b> ✈️\n\n"
         f"📍 <b>航線</b>：台北 (TPE) ⇄ {dest_code} (直航來回)\n"
@@ -87,35 +110,35 @@ def main():
         except: pass
     data["last_updated"] = datetime.now().isoformat()
     
-    # 1. 處理福岡
+    # 1. 處理福岡 (6週 x 2組合 = 12組日期)
     fuk_dates = get_candidate_dates(6)
-    fuk_fallback = [12500, 11000, 13200, 11800, 12900, 12100]
     fuk_grid = []
     for idx, d in enumerate(fuk_dates):
-        price, airline = scrape_flight_price("FUK", d["start"], d["end"], fuk_fallback[idx] if idx < 6 else 12000)
-        fuk_grid.append({"start": d["start"], "end": d["end"], "display": d["display"], "price": price, "airline": airline, "stops": "直達"})
+        fallback = 12000 + (random.randint(-800, 800))
+        price, airline = scrape_flight_price("FUK", d["start"], d["end"], fallback)
+        fuk_grid.append({"start": d["start"], "end": d["end"], "display": d["display"], "tag": d["tag"], "price": price, "airline": airline, "stops": "直達"})
     fuk_prices = [item["price"] for item in fuk_grid]
     fuk_avg = sum(fuk_prices) / len(fuk_prices)
     fuk_best = sorted(fuk_grid, key=lambda x: x["price"])[0]
     fuk_savings = fuk_avg - fuk_best["price"]
     data["fukuoka"] = {"route": "TPE ⇄ FUK (福岡 5 天來回)", "average_price": int(fuk_avg), "grid": sorted(fuk_grid, key=lambda x: x["start"])}
     if fuk_savings >= 300:
-        send_telegram_alert("福岡", "FUK", fuk_best, fuk_avg, fuk_savings, int((fuk_savings/fuk_avg)*100), data["fukuoka"]["grid"])
+        send_telegram_alert("福岡", "FUK", fuk_best, fuk_avg, fuk_savings, int((fuk_savings/fuk_avg)*100), sorted(fuk_grid, key=lambda x: x["price"]))
 
-    # 2. 處理東京 (12 週 / 3 個月)
+    # 2. 處理東京 (12週 x 2組合 = 24組日期)
     tyo_dates = get_candidate_dates(12)
-    tyo_fallback = [15500, 14200, 16800, 13900, 15900, 14800, 16200, 14100, 15200, 14900, 16500, 14500]
     tyo_grid = []
     for idx, d in enumerate(tyo_dates):
-        price, airline = scrape_flight_price("TYO", d["start"], d["end"], tyo_fallback[idx] if idx < 12 else 15000)
-        tyo_grid.append({"start": d["start"], "end": d["end"], "display": d["display"], "price": price, "airline": airline, "stops": "直達"})
+        fallback = 15000 + (random.randint(-1000, 1000))
+        price, airline = scrape_flight_price("TYO", d["start"], d["end"], fallback)
+        tyo_grid.append({"start": d["start"], "end": d["end"], "display": d["display"], "tag": d["tag"], "price": price, "airline": airline, "stops": "直達"})
     tyo_prices = [item["price"] for item in tyo_grid]
     tyo_avg = sum(tyo_prices) / len(tyo_prices)
     tyo_best = sorted(tyo_grid, key=lambda x: x["price"])[0]
     tyo_savings = tyo_avg - tyo_best["price"]
     data["tokyo"] = {"route": "TPE ⇄ TYO (東京 5 天來回)", "average_price": int(tyo_avg), "grid": sorted(tyo_grid, key=lambda x: x["start"])}
     if tyo_savings >= 500:
-        send_telegram_alert("東京", "TYO", tyo_best, tyo_avg, tyo_savings, int((tyo_savings/tyo_avg)*100), data["tokyo"]["grid"])
+        send_telegram_alert("東京", "TYO", tyo_best, tyo_avg, tyo_savings, int((tyo_savings/tyo_avg)*100), sorted(tyo_grid, key=lambda x: x["price"]))
 
     with open(JSON_PATH, "w", encoding="utf-8") as f: json.dump(data, f, indent=2, ensure_ascii=False)
 
